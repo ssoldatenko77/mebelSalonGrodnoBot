@@ -3,7 +3,7 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const { google } = require('googleapis');
-// const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 console.log('GOOGLE_SERVICE_ACCOUNT:', process.env.GOOGLE_SERVICE_ACCOUNT);

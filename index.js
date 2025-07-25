@@ -6,9 +6,9 @@ const { google } = require('googleapis');
 // const fs = require('fs');
 const path = require('path');
 
+console.log('GOOGLE_SERVICE_ACCOUNT:', process.env.GOOGLE_SERVICE_ACCOUNT);
 const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 creds.private_key = creds.private_key.replace(/\\n/g, '\n');
-
 
 // === Express для хостинга (например, Railway) ===
 const app = express();

@@ -6,17 +6,26 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-console.log('GOOGLE_SERVICE_ACCOUNT:', process.env.GOOGLE_SERVICE_ACCOUNT);
-const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-creds.private_key = creds.private_key.replace(/\\n/g, '\n');
+// === Проверка переменной окружения и разбор JSON ===
+console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
 
-// === Express для хостинга (например, Railway) ===
+let creds;
+try {
+  creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+  creds.private_key = creds.private_key.replace(/\\n/g, '\n');
+  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно разобран.');
+} catch (err) {
+  console.error('❌ Ошибка при разборе GOOGLE_SERVICE_ACCOUNT:', err.message);
+  process.exit(1); // прерываем выполнение, чтобы не запускался бот с ошибкой
+}
+
+// === Express для Railway ===
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => res.send("Бот работает"));
 app.listen(PORT, () => console.log(`Server on ${PORT}`));
 
-// === Инициализация бота ===
+// === Инициализация Telegram-бота ===
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 
 const mainMenu = {
@@ -50,7 +59,6 @@ bot.on('message', async (msg) => {
       }
     };
     await bot.sendMessage(chatId, 'Нажмите кнопку, чтобы перейти в наш Instagram:', inlineKeyboard);
-  
 
   } else if (text === 'ℹ️ О нас') {
     bot.sendMessage(chatId,

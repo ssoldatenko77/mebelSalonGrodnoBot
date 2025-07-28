@@ -6,19 +6,16 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-// === Проверка переменной окружения и разбор JSON ===
-console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
-console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
-console.log('GOOGLE_SERVICE_ACCOUNT raw:', process.env.GOOGLE_SERVICE_ACCOUNT);
-console.log('All env vars:', process.env);
+// === Проверка переменной окружения и разбор base64 ===
 let creds;
 try {
-  creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+  const jsonString = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64, 'base64').toString('utf8');
+  creds = JSON.parse(jsonString);
   creds.private_key = creds.private_key.replace(/\\n/g, '\n');
-  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно разобран.');
+  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно декодирован и разобран.');
 } catch (err) {
-  console.error('❌ Ошибка при разборе GOOGLE_SERVICE_ACCOUNT:', err.message);
-  process.exit(1); // прерываем выполнение, чтобы не запускался бот с ошибкой
+  console.error('❌ Ошибка при декодировании GOOGLE_SERVICE_ACCOUNT:', err.message);
+  process.exit(1);
 }
 
 // === Express для Railway ===

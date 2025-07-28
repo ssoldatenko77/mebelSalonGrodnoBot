@@ -10,6 +10,7 @@ const path = require('path');
 console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
 console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
 console.log('GOOGLE_SERVICE_ACCOUNT raw:', process.env.GOOGLE_SERVICE_ACCOUNT);
+console.log('All env vars:', process.env);
 let creds;
 try {
   creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);

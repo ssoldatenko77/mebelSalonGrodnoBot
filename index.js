@@ -8,7 +8,8 @@ const path = require('path');
 
 // === Проверка переменной окружения и разбор JSON ===
 console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
-
+console.log('GOOGLE_SERVICE_ACCOUNT exists:', !!process.env.GOOGLE_SERVICE_ACCOUNT);
+console.log('GOOGLE_SERVICE_ACCOUNT raw:', process.env.GOOGLE_SERVICE_ACCOUNT);
 let creds;
 try {
   creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);

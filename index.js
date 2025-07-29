@@ -6,13 +6,13 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-// === Проверка переменной окружения и разбор base64 ===
+// === Раскодировка GOOGLE_SERVICE_ACCOUNT_B64 ===
 let creds;
 try {
   const jsonString = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64, 'base64').toString('utf8');
   creds = JSON.parse(jsonString);
   creds.private_key = creds.private_key.replace(/\\n/g, '\n');
-  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно декодирован и разобран.');
+  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно декодирован.');
 } catch (err) {
   console.error('❌ Ошибка при декодировании GOOGLE_SERVICE_ACCOUNT:', err.message);
   process.exit(1);
@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => res.send("Бот работает"));
 app.listen(PORT, () => console.log(`Server on ${PORT}`));
 
-// === Инициализация Telegram-бота ===
+// === Telegram-бот ===
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 
 const mainMenu = {
@@ -38,33 +38,28 @@ const mainMenu = {
   }
 };
 
-// === Команда /start ===
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Добро пожаловать в салон мебели! Выберите опцию:', mainMenu);
 });
 
-// === Обработка сообщений ===
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
   if (text === '📱 Instagram') {
-    const instagramUrl = 'https://www.instagram.com/sapermebel_grodno';
-    const inlineKeyboard = {
+    const url = 'https://www.instagram.com/sapermebel_grodno';
+    bot.sendMessage(chatId, 'Нажмите кнопку, чтобы перейти в наш Instagram:', {
       reply_markup: {
-        inline_keyboard: [
-          [{ text: 'Перейти в Instagram', url: instagramUrl }]
-        ]
+        inline_keyboard: [[{ text: 'Перейти в Instagram', url }]]
       }
-    };
-    await bot.sendMessage(chatId, 'Нажмите кнопку, чтобы перейти в наш Instagram:', inlineKeyboard);
+    });
 
   } else if (text === 'ℹ️ О нас') {
     bot.sendMessage(chatId,
       'Мы — мебельный салон в Гродно.\n' +
       'Изготавливаем кухни, шкафы и другую корпусную мебель на заказ.\n' +
       'Работаем с надёжными производителями.\n' +
-      'Индивидуальный подход и бесплатный замер. И лучший Рыжий Продавец'
+      'Индивидуальный подход и бесплатный замер. И лучший Рыжий Продавец.'
     );
 
   } else if (text === '🤝 Наши партнёры') {
@@ -75,25 +70,15 @@ bot.on('message', async (msg) => {
     );
 
   } else if (text === '📷 Фото кухонь') {
-    const kitchensDir = path.join(__dirname, 'kitchens');
-
-    fs.readdir(kitchensDir, async (err, files) => {
-      if (err) {
-        bot.sendMessage(chatId, 'Не удалось загрузить фотографии кухонь.');
-        console.error(err);
-        return;
-      }
-
-      const photos = files.filter(f => /\.(jpe?g|png|gif)$/i.test(f));
-
-      if (photos.length === 0) {
+    const dir = path.join(__dirname, 'kitchens');
+    fs.readdir(dir, async (err, files) => {
+      if (err || !files.length) {
         bot.sendMessage(chatId, 'Фотографии кухонь пока отсутствуют.');
         return;
       }
-
-      for (const photo of photos) {
-        const photoPath = path.join(kitchensDir, photo);
-        await bot.sendPhoto(chatId, photoPath);
+      const images = files.filter(f => /\.(jpe?g|png)$/i.test(f));
+      for (const img of images) {
+        await bot.sendPhoto(chatId, path.join(dir, img));
       }
     });
 
@@ -113,18 +98,23 @@ bot.on('message', async (msg) => {
       bot.sendMessage(chatId, 'Введите ваш номер телефона:');
       bot.once('message', (msgPhone) => {
         const phone = msgPhone.text;
-        bot.sendMessage(chatId, 'Оставьте комментарий (например: "Нужна кухня под потолок"):');
+        bot.sendMessage(chatId, 'Оставьте комментарий:');
         bot.once('message', async (msgComment) => {
           const comment = msgComment.text;
-          await saveToGoogleSheets(name, phone, comment);
-          bot.sendMessage(chatId, 'Спасибо! Мы с вами свяжемся.', mainMenu);
+          try {
+            await saveToGoogleSheets(name, phone, comment);
+            bot.sendMessage(chatId, 'Спасибо! Мы с вами свяжемся.', mainMenu);
+          } catch (err) {
+            console.error('Ошибка при сохранении:', err);
+            bot.sendMessage(chatId, 'Ошибка при сохранении заявки. Попробуйте позже.', mainMenu);
+          }
         });
       });
     });
   }
 });
 
-// === Сохранение данных в Google Таблицу ===
+// === Функция сохранения в Google Таблицу ===
 async function saveToGoogleSheets(name, phone, comment) {
   const auth = new google.auth.GoogleAuth({
     credentials: creds,

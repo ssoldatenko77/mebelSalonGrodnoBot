@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+console.log('GOOGLE_SERVICE_ACCOUNT_B64 из .env:', process.env.GOOGLE_SERVICE_ACCOUNT_B64?.substring(0, 30) + '...');
+
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const { google } = require('googleapis');

@@ -1,5 +1,7 @@
-require('dotenv').config();
-
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+console.log('Все переменные окружения:', Object.keys(process.env));
 console.log('ENCODED_SERVICE_ACCOUNT из .env:', process.env.ENCODED_SERVICE_ACCOUNT?.substring(0, 30) + '...');
 
 const TelegramBot = require('node-telegram-bot-api');

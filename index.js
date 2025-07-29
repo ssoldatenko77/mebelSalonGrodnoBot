@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-console.log('GOOGLE_SERVICE_ACCOUNT_B64 из .env:', process.env.GOOGLE_SERVICE_ACCOUNT_B64?.substring(0, 30) + '...');
+console.log('ENCODED_SERVICE_ACCOUNT из .env:', process.env.ENCODED_SERVICE_ACCOUNT?.substring(0, 30) + '...');
 
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
@@ -8,15 +8,15 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-// === Раскодировка GOOGLE_SERVICE_ACCOUNT_B64 ===
+// === Раскодировка ENCODED_SERVICE_ACCOUNT ===
 let creds;
 try {
-  const jsonString = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_B64, 'base64').toString('utf8');
+  const jsonString = Buffer.from(process.env.ENCODED_SERVICE_ACCOUNT, 'base64').toString('utf8');
   creds = JSON.parse(jsonString);
   creds.private_key = creds.private_key.replace(/\\n/g, '\n');
-  console.log('✅ GOOGLE_SERVICE_ACCOUNT успешно декодирован.');
+  console.log('✅ ENCODED_SERVICE_ACCOUNT успешно декодирован.');
 } catch (err) {
-  console.error('❌ Ошибка при декодировании GOOGLE_SERVICE_ACCOUNT:', err.message);
+  console.error('❌ Ошибка при декодировании ENCODED_SERVICE_ACCOUNT:', err.message);
   process.exit(1);
 }
 

@@ -18,4 +18,4 @@ const fs = require('fs');
 const file = fs.readFileSync('service-account.json');
 const b64 = Buffer.from(file).toString('base64');
 
-fs.writeFileSync('escaped.txt', `ENCODED_SERVICE_ACCOUNT=${b64}`);
+fs.writeFileSync('escaped.txt', `MY_ENCODED_SERVICE_ACCOUNT=${b64}`);

@@ -2,7 +2,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 console.log('Все переменные окружения:', Object.keys(process.env));
-console.log('ENCODED_SERVICE_ACCOUNT из .env:', process.env.ENCODED_SERVICE_ACCOUNT?.substring(0, 30) + '...');
+console.log('ENCODED_SERVICE_ACCOUNT из .env:', process.env.MY_ENCODED_SERVICE_ACCOUNT?.substring(0, 30) + '...');
 
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
@@ -13,7 +13,7 @@ const path = require('path');
 // === Раскодировка ENCODED_SERVICE_ACCOUNT ===
 let creds;
 try {
-  const jsonString = Buffer.from(process.env.ENCODED_SERVICE_ACCOUNT, 'base64').toString('utf8');
+  const jsonString = Buffer.from(process.env.MY_ENCODED_SERVICE_ACCOUNT, 'base64').toString('utf8');
   creds = JSON.parse(jsonString);
   creds.private_key = creds.private_key.replace(/\\n/g, '\n');
   console.log('✅ ENCODED_SERVICE_ACCOUNT успешно декодирован.');
@@ -24,12 +24,12 @@ try {
 
 // === Express для Railway ===
 const app = express();
-const PORT = process.env.PORT || 3000;
+const MY_PORT = process.env.MY_PORT || 3000;
 app.get("/", (req, res) => res.send("Бот работает"));
-app.listen(PORT, () => console.log(`Server on ${PORT}`));
+app.listen(MY_PORT, () => console.log(`Server on ${MY_PORT}`));
 
 // === Telegram-бот ===
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.MY_TELEGRAM_TOKEN, { polling: true });
 
 const mainMenu = {
   reply_markup: {
@@ -128,7 +128,7 @@ async function saveToGoogleSheets(name, phone, comment) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+  const spreadsheetId = process.env.MY_GOOGLE_SHEET_ID;
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,

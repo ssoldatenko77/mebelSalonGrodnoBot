@@ -86,14 +86,14 @@ bot.on('message', async (msg) => {
       }
     });
 
-  } else if (text === '🚪 Фото шкафов') {
-    const wardrobes = [
-      { url: 'https://example.com/wardrobe1.jpg', caption: 'Шкаф-купе #1' },
-      { url: 'https://example.com/wardrobe2.jpg', caption: 'Шкаф-купе #2' },
-    ];
-    for (const item of wardrobes) {
-      await bot.sendPhoto(chatId, item.url, { caption: item.caption });
-    }
+  // } else if (text === '🚪 Фото шкафов') {
+  //   const wardrobes = [
+  //     { url: 'https://example.com/wardrobe1.jpg', caption: 'Шкаф-купе #1' },
+  //     { url: 'https://example.com/wardrobe2.jpg', caption: 'Шкаф-купе #2' },
+  //   ];
+  //   for (const item of wardrobes) {
+  //     await bot.sendPhoto(chatId, item.url, { caption: item.caption });
+  //   }
 
   } else if (text === '📩 Оставить заявку') {
     bot.sendMessage(chatId, 'Введите ваше имя:');
